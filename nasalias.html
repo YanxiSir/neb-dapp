@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"
+		/>
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+		<link rel="stylesheet" href="css/screen.min.css" type="text/css" />
+		<title>
+			walletalias
+		</title>
+	</head>
+	<style type="text/css">
+	.showBox{
+		width: 454px;
+	    position: relative;
+	    height: 160px;
+	    text-align: center;
+	    margin: 0 auto;
+	    color: #000;
+	    overflow: hidden;
+	}
+	</style>
+	<body>
+		<header class="main-header" style="background-image: url(http://image.golaravel.com/5/c9/44e1c4e50d55159c65da6a41bc07e.jpg)">
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-12">
+						<h1>
+							<span>
+								WalletAlias -
+							</span>
+							你的钱包映射助手
+						</h1>
+						<!-- <img src="http://image.golaravel.com/e/b0/4e4bd788405aab87f03d26edc4ab4.png"
+						alt="Laravel" class="hide" />
+						-->
+					</div>
+				</div>
+			</div>
+		</header>
+		<nav class="main-navigation">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="navbar-header">
+							<span class="nav-toggle-button collapsed" data-toggle="collapse" data-target="#main-menu">
+								<span class="sr-only">
+									Toggle navigation
+								</span>
+								<i class="fa fa-bars">
+								</i>
+							</span>
+						</div>
+						<div class="collapse navbar-collapse" id="main-menu">
+							<ul class="menu">
+								<li role="presentation">
+									<a href="#" title="首页">
+										首页
+									</a>
+								</li>
+								<li role="presentation">
+									<a href="#" title="Laravel 中文文档" target="_blank"
+									onclick="_hmt.push(['_trackEvent', 'main-navigation', 'click', 'Laravel 中文文档'])">
+										靓号列表
+									</a>
+								</li>
+								<!-- <li role="presentation" style="font-weight: bold"> -->
+								<li role="presentation" >
+									<a href="#" title="Packagist 中国镜像" target="_blank"
+									onclick="_hmt.push(['_trackEvent', 'main-navigation', 'click', 'Packagist 中国镜像'])">
+										Api文档
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<section class="content-wrap">
+			<div class="container">
+				<div class="row">
+					<main class="col-md-12 sidebar">
+						<div class="widget">
+							<form class="form-inline">
+								<div class="form-group">
+									<div class="input-group">
+										<input type="text" class="form-control" id="search_value" placeholder="xxx">
+									</div>
+								</div>
+								<button type="submit" id="search" class="btn btn-default">
+									查询
+								</button>
+							</form>
+							<h4 class="title">
+							</h4>
+							<div id="show" class="content showBox">
+							</div>
+						</div>
+					</main>
+					<aside class="col-md-12 main-content">
+						<div class="widget post">
+							<h4 class="title">
+								靓号展示
+							</h4>
+							<table class="table">
+								<thead>
+									<tr>
+										<th class="col-md-1">
+											#
+										</th>
+										<th class="col-md-1">
+											alias
+										</th>
+										<th class="col-md-5">
+											address
+										</th>
+										<th class="col-md-2">
+											卖价(单位:NAS)
+										</th>
+										<th class="col-md-1">
+											转手次数
+										</th>
+									</tr>
+								</thead>
+								<tbody id="all_list">
+								</tbody>
+							</table>
+						</div>
+					</aside>
+				</div>
+			</div>
+		</section>
+		<script src=lib/jquery-3.3.1.min.js>
+		</script>
+		<script src=lib/nebPay.js>
+		</script>
+		<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js>
+		</script>
+		<script src=lib/nebulas.js>
+		</script>
+		<script type="text/javascript">
+			"use strict";
+
+			var dappAddress = "n219Aw5BMSppZbiRA4QPrWzztwtHA2epw7i";
+			var nebulas = require("nebulas"),
+			Account = nebulas.Account,
+			neb = new nebulas.Neb();
+			neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+			var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
+			var nebPay = new NebPay();
+			var serialNumber;
+			getAll(0,20);
+
+			$("#search").click(function() {
+				var from = Account.NewAccount().getAddressString();
+				var value = "0";
+				var nonce = "0"
+				var gas_price = "1000000"
+				var gas_limit = "2000000"
+				var callFunction = "searchByName";
+				var callArgs = "[\"" + $("#search_value").val() + "\"]"; //in the form of ["args"]
+				var contract = {
+					"function": callFunction,
+					"args": callArgs
+				}
+				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
+					if (resp.result == 'null') {
+						var alias = $("#search_value").val();
+						var html = "";
+						html+="<div class='center-block'>"
+						html += alias + " 还没人拥有,点击购买(初始价0.001nas)。";
+						html += "<br/><button id='buy' type='submit' val='" + alias + "' class='btn btn-default'>购买</button>";
+						html+="</div>";
+						$("#show").html(html);
+						$("#buy").click(buy)
+					} else {
+						var result = JSON.parse(resp.result);
+						var html = "";
+						html+="<div class='center-block'>"
+						html+="<table class='center'>";
+						// html += "<span>alias:</span>" + result.nickname;
+						// html += "<br/><span>address:</span>" + result.address;
+						// html += "<br/><span>卖价:</span>" + result.salePrice;
+						html+="<tr><th>alias:</th><th>\t&nbsp; "+result.nickname+"</th></tr>"
+						html+="<tr><th>address:</th><th>\t&nbsp; "+result.address+"</th></tr>"
+						html+="<tr><th>salePrice:</th><th>\t&nbsp; "+result.salePrice+"NAS</th></tr>"
+						html+="<tr><th>转手次数:</th><th>\t&nbsp; "+result.saleCount+"次</th></tr>"
+						html+="</table>";
+						html+="<div><tr>";
+						html+="<th class='ol-md-2'><button id='buyExist' type='submit' alias='" + result.nickname + "' to='"+result.address+"' sale='"+result.salePrice+"' class='btn btn-default'>购买</button></th>";
+						html+="<th class='ol-md-2'></th>";
+						html+="<th class='ol-md-2'><button id='updatePrice' type='submit' alias='"+result.nickname+"' class='btn btn-default'>更新售价</button></th>";
+						html+="</tr></div>";
+						html+="</div>";
+						$("#show").html(html);
+						$("#buyExist").click(buyExist);
+					}
+				}).
+				catch(function(err) {
+					//cbSearch(err)
+					alert("error:" + err.message)
+				})
+			})
+
+			function buy() {
+				var alias = $("#buy").attr("val");
+				// alert(alias)
+				var value = "0";
+				var callFunction = "save"
+				var callArgs = "[\"" + alias + "\",\"" + 0.001 + "\"]"
+				// var callArgs = "[]"
+				serialNumber = nebPay.call(dappAddress, value, callFunction, callArgs, { //使用nebpay的call接口去调用合约,
+					listener: cbPush //设置listener, 处理交易返回信息
+				});
+
+				intervalQuery = setInterval(function() {
+					funcIntervalQuery();
+				},
+				5000);
+			}
+			function buyExist(){
+				var alias = $("#buyExist").attr("alias");
+				var to = $("#buyExist").attr("to");
+				var salePrice = $("#buyExist").attr("sale");
+				// alert(alias)
+				var value = "0";
+				var callFunction = "buy"
+				var callArgs = JSON.stringify([alias,salePrice])
+				// var callArgs = "[]"
+				serialNumber = nebPay.call(dappAddress, value, callFunction, callArgs, { //使用nebpay的call接口去调用合约,
+					listener: cbPush //设置listener, 处理交易返回信息
+				});
+
+				intervalQuery = setInterval(function() {
+					funcIntervalQuery();
+				},
+				5000);
+			}
+			var intervalQuery
+
+			function funcIntervalQuery() {
+				nebPay.queryPayInfo(serialNumber) //search transaction result from server (result upload to server by app)
+				.then(function(resp) {
+					console.log("tx result: " + resp) //resp is a JSON string
+					var respObject = JSON.parse(resp) 
+					if (respObject.code === 0) {
+						// alert(`set ${$("#search_value").val()} succeed!`)
+	                    clearInterval(intervalQuery);
+	                    intervalQuery=null;
+						intervalQuery = null;
+					}
+				}).
+				catch(function(err) {
+					console.log(err);
+				});
+			}
+			function cbPush(resp) {
+				console.log("response of push: " + JSON.stringify(resp))
+			}
+
+			function getAll(offset,limit) {
+				var from = Account.NewAccount().getAddressString();
+				var value = "0";
+				var nonce = "0"
+				var gas_price = "1000000"
+				var gas_limit = "2000000"
+				var callFunction = "getAllByName";
+				var callArgs = "[\"0\" ,\"20\"]";
+				var contract = {
+					"function": callFunction,
+					"args": callArgs
+				}
+				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
+					if (resp.result == 'null') {
+
+					} else {
+						var respObject = JSON.parse(resp.result);
+						var html = "";
+						for (var i = 0; i < respObject.length; i++) {
+							html += "<tr>";
+							html += "<th scope='row'>" + (i + 1) + "</th>";
+							html += "<th>" + respObject[i].nickname + "</th>";
+							html += "<th>" + respObject[i].address + "</th>";
+							html += "<th>" + respObject[i].salePrice + "</th>";
+							html += "<th>" + respObject[i].saleCount + "</th>";
+							html += "</tr>";
+						}
+						$("#all_list").html(html);
+					}
+				}).
+				catch(function(err) {
+					//cbSearch(err)
+					alert("error:" + err.message)
+				})
+			}
+		</script>
+	</body>
+
+</html>
