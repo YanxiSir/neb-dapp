@@ -300,13 +300,13 @@
 				var gas_price = "1000000"
 				var gas_limit = "2000000"
 				var callFunction = "getAllByName";
-				var callArgs = "[\"0\" ,\"20\"]";
+				var callArgs = JSON.stringify([offset,limit])
 				var contract = {
 					"function": callFunction,
 					"args": callArgs
 				}
 				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
-					if (resp.result == 'null' || resp.execute_err!='') {
+					if (resp.result == 'null' ) {
 
 					} else {
 						var respObject = JSON.parse(resp.result);
@@ -325,7 +325,7 @@
 				}).
 				catch(function(err) {
 					//cbSearch(err)
-					alert("error:" + err.message)
+					console.log("error:" + err.message)
 				})
 			}
 			function isNumber(val){
