@@ -306,7 +306,7 @@
 					"args": callArgs
 				}
 				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
-					if (resp.result == 'null') {
+					if (resp.result == 'null' || resp.execute_err!='') {
 
 					} else {
 						var respObject = JSON.parse(resp.result);
