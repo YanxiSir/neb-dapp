@@ -56,20 +56,19 @@
 						<div class="collapse navbar-collapse" id="main-menu">
 							<ul class="menu">
 								<li role="presentation">
-									<a href="#" title="首页">
+									<a href="nasalias.html" title="首页">
 										首页
 									</a>
 								</li>
-								<li role="presentation">
+								<!-- <li role="presentation">
 									<a href="#" title="Laravel 中文文档" target="_blank"
 									onclick="_hmt.push(['_trackEvent', 'main-navigation', 'click', 'Laravel 中文文档'])">
 										靓号列表
 									</a>
-								</li>
+								</li> -->
 								<!-- <li role="presentation" style="font-weight: bold"> -->
 								<li role="presentation" >
-									<a href="#" title="Packagist 中国镜像" target="_blank"
-									onclick="_hmt.push(['_trackEvent', 'main-navigation', 'click', 'Packagist 中国镜像'])">
+									<a href="nasalias_api.html" title="Packagist 中国镜像" target="_blank">
 										Api文档
 									</a>
 								</li>
@@ -84,7 +83,7 @@
 				<div class="row">
 					<main class="col-md-12 sidebar">
 						<div class="widget">
-							<form class="form-inline">
+							<div class="form-inline">
 								<div class="form-group">
 									<div class="input-group">
 										<input type="text" class="form-control" id="search_value" placeholder="xxx">
@@ -93,7 +92,7 @@
 								<button type="submit" id="search" class="btn btn-default">
 									查询
 								</button>
-							</form>
+							</div>
 							<h4 class="title">
 							</h4>
 							<div id="show" class="content showBox">
@@ -137,10 +136,11 @@
 		</script>
 		<script src=lib/nebPay.js>
 		</script>
-		<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js>
+		<script src=lib/bootstrap-3.3.7-dist/js/bootstrap.min.js>
 		</script>
 		<script src=lib/nebulas.js>
 		</script>
+		<script src="lib/bootbox.min.js"></script>
 		<script type="text/javascript">
 			"use strict";
 
@@ -152,7 +152,7 @@
 			var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
 			var nebPay = new NebPay();
 			var serialNumber;
-			getAll(0,20);
+			getAll(0,100);
 
 			$("#search").click(function() {
 				var from = Account.NewAccount().getAddressString();
@@ -161,7 +161,7 @@
 				var gas_price = "1000000"
 				var gas_limit = "2000000"
 				var callFunction = "searchByName";
-				var callArgs = "[\"" + $("#search_value").val() + "\"]"; //in the form of ["args"]
+				var callArgs = JSON.stringify([$("#search_value").val()])
 				var contract = {
 					"function": callFunction,
 					"args": callArgs
@@ -175,7 +175,7 @@
 						html += "<br/><button id='buy' type='submit' val='" + alias + "' class='btn btn-default'>购买</button>";
 						html+="</div>";
 						$("#show").html(html);
-						$("#buy").click(buy)
+						$("#buy").click(buy);
 					} else {
 						var result = JSON.parse(resp.result);
 						var html = "";
@@ -191,12 +191,13 @@
 						html+="</table>";
 						html+="<div><tr>";
 						html+="<th class='ol-md-2'><button id='buyExist' type='submit' alias='" + result.nickname + "' to='"+result.address+"' sale='"+result.salePrice+"' class='btn btn-default'>购买</button></th>";
-						html+="<th class='ol-md-2'></th>";
+						html+="<th class='ol-md-2'>&nbsp;&nbsp;</th>";
 						html+="<th class='ol-md-2'><button id='updatePrice' type='submit' alias='"+result.nickname+"' class='btn btn-default'>更新售价</button></th>";
 						html+="</tr></div>";
 						html+="</div>";
 						$("#show").html(html);
 						$("#buyExist").click(buyExist);
+						$("#updatePrice").click(updatePrice);
 					}
 				}).
 				catch(function(err) {
@@ -210,7 +211,7 @@
 				// alert(alias)
 				var value = "0";
 				var callFunction = "save"
-				var callArgs = "[\"" + alias + "\",\"" + 0.001 + "\"]"
+				var callArgs = JSON.stringify([alias,0.001])
 				// var callArgs = "[]"
 				serialNumber = nebPay.call(dappAddress, value, callFunction, callArgs, { //使用nebpay的call接口去调用合约,
 					listener: cbPush //设置listener, 处理交易返回信息
@@ -239,7 +240,7 @@
 				},
 				5000);
 			}
-			var intervalQuery
+			var intervalQuery;
 
 			function funcIntervalQuery() {
 				nebPay.queryPayInfo(serialNumber) //search transaction result from server (result upload to server by app)
@@ -258,9 +259,40 @@
 				});
 			}
 			function cbPush(resp) {
-				console.log("response of push: " + JSON.stringify(resp))
+				alert("response of push: " + JSON.stringify(resp))
 			}
+			function updatePrice(){
+				bootbox.prompt({ 
+				  size: "small",
+				  title: "更新售价?", 
+				  callback: function(result){ 
+				  	if (!isNumber(result)) {
+				  		bootbox.alert({ 
+							  size: "small",
+							  title: "Error",
+							  message: "只能是整数或浮点数", 
+							  callback: function(){ /* your callback code */ }
+							})
+				  		return;
+				  	}else{
+				  		var salePrice = result;
+				  		var alias = $("#updatePrice").attr("alias");
+				  		var value = "0";
+						var callFunction = "updatePrice"
+						var callArgs = JSON.stringify([alias,salePrice]);
+						serialNumber = nebPay.call(dappAddress, value, callFunction, callArgs, { //使用nebpay的call接口去调用合约,
+							listener: cbPush //设置listener, 处理交易返回信息
+						});
 
+						intervalQuery = setInterval(function() {
+							funcIntervalQuery();
+						},
+						5000);
+						  	}
+						   }
+						})
+
+			}
 			function getAll(offset,limit) {
 				var from = Account.NewAccount().getAddressString();
 				var value = "0";
@@ -295,6 +327,16 @@
 					//cbSearch(err)
 					alert("error:" + err.message)
 				})
+			}
+			function isNumber(val){
+			    var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+			    var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
+			    if(regPos.test(val) || regNeg.test(val)){
+			        return true;
+			    }else{
+			        return false;
+			    }
+
 			}
 		</script>
 	</body>

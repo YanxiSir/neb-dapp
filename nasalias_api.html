@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"
+		/>
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+		<link rel="stylesheet" href="css/screen.min.css" type="text/css" />
+		<title>
+			walletalias
+		</title>
+	</head>
+	<style type="text/css">
+	
+	</style>
+	<body>
+		<header class="main-header" style="background-image: url(http://image.golaravel.com/5/c9/44e1c4e50d55159c65da6a41bc07e.jpg)">
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-12">
+						<h1>
+							<span>
+								WalletAlias -
+							</span>
+							你的钱包映射助手
+						</h1>
+						<!-- <img src="http://image.golaravel.com/e/b0/4e4bd788405aab87f03d26edc4ab4.png"
+						alt="Laravel" class="hide" />
+						-->
+					</div>
+				</div>
+			</div>
+		</header>
+		<nav class="main-navigation">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="navbar-header">
+							<span class="nav-toggle-button collapsed" data-toggle="collapse" data-target="#main-menu">
+								<span class="sr-only">
+									Toggle navigation
+								</span>
+								<i class="fa fa-bars">
+								</i>
+							</span>
+						</div>
+						<div class="collapse navbar-collapse" id="main-menu">
+							<ul class="menu">
+								<li role="presentation">
+									<a href="nasalias.html" title="首页">
+										首页
+									</a>
+								</li>
+								<!-- <li role="presentation">
+									<a href="#" title="Laravel 中文文档" target="_blank"
+									onclick="_hmt.push(['_trackEvent', 'main-navigation', 'click', 'Laravel 中文文档'])">
+										靓号列表
+									</a>
+								</li> -->
+								<!-- <li role="presentation" style="font-weight: bold"> -->
+								<li role="presentation" >
+									<a href="#" title="Packagist 中国镜像" target="_blank"
+									onclick="_hmt.push(['_trackEvent', 'main-navigation', 'click', 'Packagist 中国镜像'])">
+										Api文档
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<section class="content-wrap">
+			<div class="container">
+				<div class="row">
+					<aside class="col-md-12 main-content">
+						<div class="widget post">
+							<h4 class="title">
+								Api文档
+							</h4>
+							
+							<iframe src="api/nasalias-md.html" id="myiframe" scrolling="no" width="1000" height="800" onload="changeFrameHeight()"frameborder="0"></iframe>
+
+						</div>
+					</aside>
+				</div>
+			</div>
+		</section>
+		<script src=lib/jquery-3.3.1.min.js>
+		</script>
+		<script src=lib/nebPay.js>
+		</script>
+		<script src=lib/bootstrap-3.3.7-dist/js/bootstrap.min.js>
+		</script>
+		<script src=lib/nebulas.js>
+		</script>
+		<script src="lib/bootbox.min.js"></script>
+		<script type="text/javascript">
+			"use strict";
+
+function changeFrameHeight(){
+    var ifm= document.getElementById("myiframe"); 
+    ifm.height=document.documentElement.clientHeight;
+
+}
+
+window.onresize=function(){  
+     changeFrameHeight();  
+
+} 
+			
+		</script>
+	</body>
+
+</html>
