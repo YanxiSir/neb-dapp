@@ -144,8 +144,6 @@
 		<script type="text/javascript">
 			"use strict";
 
-			judgeLogin();
-			getAllMood();
 			// testnet mood contract
 			var dappAddress = "n1wZBQAvxvPEyL4xYxZ2ykjD63N9TNjtZUn";
 			var nebulas = require("nebulas"),
@@ -161,6 +159,10 @@
 			var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
 			var nebPay = new NebPay();
 			var serialNumber;
+
+
+			judgeLogin();
+			getAllMood();
 
 
 
@@ -308,7 +310,7 @@
 				$("#showLogin").show();
 			}
 			function needLogin(){
-				
+
 				$("#login").show();
 				$("#showLogin").hide();
 			}
