@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"
+		/>
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		 <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css" rel="stylesheet" type="text/css" media="all">
+		<link rel="stylesheet" href="lib/bootstrap-3.3.7-dist/css/bootstrap.min.css" type="text/css" />
+		<link rel="stylesheet" href="lib/bootstrap-3.3.7-dist/css/bootstrap.colorpickersliders.min.css" type="text/css"/>
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css">
+		<link rel="stylesheet" href="css/screen.min.css" type="text/css" />
+
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	    <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/run_prettify.min.js"></script>
+	    <script src="http://cdnjs.cloudflare.com/ajax/libs/tinycolor/0.11.1/tinycolor.min.js"></script>
+		<script src="lib/nebPay.js"></script>
+		<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+		<script src="lib/bootstrap.colorpickersliders.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+		<script src="lib/nebulas.js"></script>
+		<script src="lib/bootbox.min.js"></script>
+		<script src="lib/jquery.cookie.js"></script>
+		<title>
+			Colorful-Mood
+		</title>
+	</head>
+	<style>
+			html {
+            	background-color: #ffffff;
+            }
+            body {
+            	background-color: #ffffff;
+            }
+            /*web background*/
+            .container{
+                display:table;
+                height:100%;
+            }
+
+            .row{
+                display: table-cell;
+                vertical-align: middle;
+            }
+            /* centered columns styles */
+            .row-centered {
+                text-align:center;
+            }
+            .col-centered {
+                display:inline-block;
+                float:none;
+                text-align:center;
+                margin-right:-4px;
+            }
+            .well {
+            	background-color: #ffffff;
+            	border: none;
+            }
+
+        </style>
+	<body>
+		<header class="main-header" id="main-header">
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-12">
+						<h1 id="moodTitle">
+							<span>
+								Colorful Mood -
+							</span>
+							心情写手
+						</h1>
+						<div id="showLogin" hidden="hidden"><span id="nickname">YanxiSir</span></div>
+						<button id="login" class="btn btn-default">登录</button>
+						
+					</div>
+				</div>
+			</div>
+		</header>
+		<div class="container">
+			<div class="row row-centered">
+				<div class="well col-md-6 col-centered">
+					<div class="form-inline" id="sandbox-container">
+						<div class="form-group">
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" id="datekey" placeholder="选择日期">
+								</div>
+							</div>
+							<button id="bgcolor" class="btn btn-default">
+								心情颜色
+							</button>
+						</div>
+					</div>
+					<button id="addBtn" class="glyphicon glyphicon-plus form-inline" style="border: none;"></button>
+					<div id="editMood" hidden="hidden">
+						<div class="form-inline">
+							<textarea id="desc" class="form-control" rows="2" maxlength="50" style="margin-top: 20px"></textarea>
+						</div>
+						<div class="form-inline">
+							<button id="recoreMoodBtn" type="submit" class="btn btn-default" style="margin-top: 20px">记录心情</button>
+						</div>
+					</div>
+					<div id="moodList"></div>
+				</div>
+			</div>
+		</div>
+
+	
+		<script type="text/javascript">
+			$('#sandbox-container input').datepicker({
+				format: "yyyy/mm/dd",
+    			todayHighlight: true,
+    			todayBtn: "linked",
+    			daysOfWeekHighlighted: "0,6",
+    			weekStart: 1,
+    			language: "zh-CN",
+			});
+
+			$("#bgcolor").ColorPickerSliders({
+	            color: 'pink',
+	            previewontriggerelement: false,
+	            title: 'Body background color',
+	            order: {
+	                rgb: 1,
+	                preview: 2
+	            },
+	            onchange: function(container, color) {
+	                var header = $('.main-header');
+
+	                header.css("background-color", color.tiny.toRgbString());
+
+	                if (color.cielch.l < 60) {
+	                    header.css("color", "white");
+	                }
+	                else {
+	                    header.css("color", "black");
+	                }
+	            }
+       		 });
+			
+		</script>
+		<script type="text/javascript">
+			"use strict";
+
+			judgeLogin();
+			getAllMood();
+			// testnet mood contract
+			var dappAddress = "n1wZBQAvxvPEyL4xYxZ2ykjD63N9TNjtZUn";
+			var nebulas = require("nebulas"),
+			Account = nebulas.Account,
+			neb = new nebulas.Neb();
+			neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+
+			var nebulasAlias = require("nebulas"),
+			AccountAlias = nebulasAlias.Account,
+			nebAlias = new nebulasAlias.Neb();
+			nebAlias.setRequest(new nebulasAlias.HttpRequest("https://mainnet.nebulas.io"));
+
+			var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
+			var nebPay = new NebPay();
+			var serialNumber;
+
+
+
+			$("#recoreMoodBtn").click(function(){
+
+				var datekey = $("#datekey").val();
+				var color = $("#main-header").css("background-color")
+				var desc = $("#desc").val();
+				if (!datekey || datekey=='') {
+					alert("请选择日期");
+					return;
+				}
+				var callArgs = JSON.stringify([datekey,color,desc])
+				console.log(callArgs)
+				// var callArgs = "[]"
+				serialNumber = nebPay.call(dappAddress, "0", "save", callArgs, { //使用nebpay的call接口去调用合约,
+					listener: cbPush //设置listener, 处理交易返回信息
+				});
+
+				intervalQuery = setInterval(function() {
+					funcIntervalQuery();
+				},
+				15000);
+			});
+
+	
+
+			var intervalQuery;
+
+			function funcIntervalQuery() {
+				nebPay.queryPayInfo(serialNumber) //search transaction result from server (result upload to server by app)
+				.then(function(resp) {
+					console.log("tx result: " + resp) //resp is a JSON string
+					var respObject = JSON.parse(resp) 
+					if (respObject.code === 0) {
+						// alert(`set ${$("#search_value").val()} succeed!`)
+	                    clearInterval(intervalQuery);
+	                    intervalQuery=null;
+						intervalQuery = null;
+						$("#editMood").hide();
+					}
+				}).
+				catch(function(err) {
+					console.log(err);
+				});
+			}
+			function cbPush(resp) {
+				console.log("response of push: " + JSON.stringify(resp))
+			}
+
+			$("#addBtn").click(function(){
+				$("#addBtn").hide();
+				$("#editMood").show();
+			});
+
+			$("#login").click(function(){
+				bootbox.prompt({ 
+				  size: "small",
+				  title: "输入用户名登录", 
+				  callback: function(result){ 
+				  	if (result == '') {
+				  		bootbox.alert({ 
+							  size: "small",
+							  title: "Error",
+							  message: "不能为空", 
+							})
+				  		return;
+				  	}else{
+				  		loginSubmit(result);
+				  	}
+				  }
+				})
+				  	
+			});
+
+			function getAllMood(){
+				var nickname = $.cookie('nickname');
+				var address = $.cookie('wallet_address');
+				if (nickname==null || address==null) {
+					console.log('没有登录')
+					return
+				}
+				var from = Account.NewAccount().getAddressString();
+				var value = "0";
+				var nonce = "0"
+				var gas_price = "1000000"
+				var gas_limit = "2000000"
+				var callFunction = "search";
+				var callArgs = JSON.stringify([address])
+				var contract = {
+					"function": callFunction,
+					"args": callArgs
+				}
+				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
+					if (resp.result == 'null' ) {
+
+					} else {
+						alert(resp.result)
+						// $("#moodList").html(html);
+					}
+				}).
+				catch(function(err) {
+					//cbSearch(err)
+					console.log("error:" + err.message)
+				})
+			}
+
+			function loginSubmit(nickname) {
+				var from = Account.NewAccount().getAddressString();
+				var value = "0";
+				var nonce = "0"
+				var gas_price = "1000000"
+				var gas_limit = "2000000"
+				var callFunction = "searchByName";
+				var callArgs = JSON.stringify([nickname])
+				var contract = {
+					"function": callFunction,
+					"args": callArgs
+				}
+				nebAlias.api.call(from, "n1wctCmdjXYZpRArv6NJkvo1yeLKQQXEgfb", value, nonce, gas_price, gas_limit, contract).then(function(resp) {
+					if (resp.result == 'null') {
+						var html = "<a target='_blank' href='http://www.dapanger.cn'>WalletAlias</a>";
+						bootbox.alert({
+						    message: "用户不存在，请先去"+html+"注册",
+						    className: 'bb-alternate-modal'
+						});
+					} else {
+						// alert(resp.result)
+						var address = resp.result.address;
+						$.cookie('wallet_address', address);
+						$.cookie('nickname',nickname);
+						loginSuccess();
+					}
+				}).
+				catch(function(err) {
+					//cbSearch(err)
+					alert("error:" + err.message)
+				})
+			}
+
+			function loginSuccess(){
+				$("#login").hide();
+				$("#nickname").html($.cookie('nickname'))
+				$("#showLogin").show();
+			}
+			function needLogin(){
+				$("#login").show();
+				$("#showLogin").hide();
+			}
+			function judgeLogin(){
+				var nickname = $.cookie('nickname');
+				var address = $.cookie('wallet_address');
+				if (nickname==null || address==null) {
+					needLogin();
+				}else{
+					loginSuccess();
+				}
+			}
+
+			
+		</script>
+	</body>
+
+</html>

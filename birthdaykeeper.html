@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"
+		/>
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+		<title>
+			生日管家 - Birthday Keeper
+		</title>
+	</head>
+	<body>
+		
+		<script src=lib/jquery-3.3.1.min.js>
+		</script>
+		<script src=lib/nebPay.js>
+		</script>
+		<script src=lib/bootstrap-3.3.7-dist/js/bootstrap.min.js>
+		</script>
+		<script src=lib/nebulas.js>
+		</script>
+		<script src="lib/bootbox.min.js"></script>
+		<script type="text/javascript">
+			"use strict";
+
+			var dappAddress = "n1wctCmdjXYZpRArv6NJkvo1yeLKQQXEgfb";
+			var nebulas = require("nebulas"),
+			Account = nebulas.Account,
+			neb = new nebulas.Neb();
+			neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
+			var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
+			var nebPay = new NebPay();
+			var serialNumber;
+			getAll(0,100);
+
+			$("#search").click(function() {
+				var from = Account.NewAccount().getAddressString();
+				var value = "0";
+				var nonce = "0"
+				var gas_price = "1000000"
+				var gas_limit = "2000000"
+				var callFunction = "searchByName";
+				var callArgs = JSON.stringify([$("#search_value").val()])
+				var contract = {
+					"function": callFunction,
+					"args": callArgs
+				}
+				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
+					if (resp.result == 'null') {
+						var alias = $("#search_value").val();
+						var html = "";
+						html+="<div class='center-block'>"
+						html += alias + " 还没人拥有,点击购买(初始价0.001nas)。";
+						html += "<br/><button id='buy' type='submit' val='" + alias + "' class='btn btn-default'>购买</button>";
+						html+="</div>";
+						$("#show").html(html);
+						$("#buy").click(buy);
+					} else {
+						var result = JSON.parse(resp.result);
+						var html = "";
+						html+="<div class='center-block'>"
+						html+="<table class='center'>";
+						// html += "<span>alias:</span>" + result.nickname;
+						// html += "<br/><span>address:</span>" + result.address;
+						// html += "<br/><span>卖价:</span>" + result.salePrice;
+						html+="<tr><th>alias:</th><th>\t&nbsp; "+result.nickname+"</th></tr>"
+						html+="<tr><th>address:</th><th>\t&nbsp; "+result.address+"</th></tr>"
+						html+="<tr><th>卖价:</th><th>\t&nbsp; "+result.salePrice+"NAS</th></tr>"
+						html+="<tr><th>转手次数:</th><th>\t&nbsp; "+result.saleCount+"次</th></tr>"
+						html+="</table>";
+						html+="<div><tr>";
+						html+="<th class='ol-md-2'><button id='buyExist' type='submit' alias='" + result.nickname + "' to='"+result.address+"' sale='"+result.salePrice+"' class='btn btn-default'>购买</button></th>";
+						html+="<th class='ol-md-2'>&nbsp;&nbsp;</th>";
+						html+="<th class='ol-md-2'><button id='updatePrice' type='submit' alias='"+result.nickname+"' class='btn btn-default'>更新售价</button></th>";
+						html+="</tr></div>";
+						html+="</div>";
+						$("#show").html(html);
+						$("#buyExist").click(buyExist);
+						$("#updatePrice").click(updatePrice);
+					}
+				}).
+				catch(function(err) {
+					//cbSearch(err)
+					alert("error:" + err.message)
+				})
+			})
+
+			function buy() {
+				var alias = $("#buy").attr("val");
+				// alert(alias)
+				var value = "0";
+				var callFunction = "save"
+				var callArgs = JSON.stringify([alias,0.001])
+				// var callArgs = "[]"
+				serialNumber = nebPay.call(dappAddress, value, callFunction, callArgs, { //使用nebpay的call接口去调用合约,
+					listener: cbPush //设置listener, 处理交易返回信息
+				});
+
+				intervalQuery = setInterval(function() {
+					funcIntervalQuery();
+				},
+				5000);
+			}
+			function buyExist(){
+				var alias = $("#buyExist").attr("alias");
+				var to = $("#buyExist").attr("to");
+				var salePrice = $("#buyExist").attr("sale");
+				// alert(alias)
+				var value = "0";
+				var callFunction = "buy"
+				var callArgs = JSON.stringify([alias,salePrice])
+				// var callArgs = "[]"
+				serialNumber = nebPay.call(dappAddress, value, callFunction, callArgs, { //使用nebpay的call接口去调用合约,
+					listener: cbPush //设置listener, 处理交易返回信息
+				});
+
+				intervalQuery = setInterval(function() {
+					funcIntervalQuery();
+				},
+				5000);
+			}
+			var intervalQuery;
+
+			function funcIntervalQuery() {
+				nebPay.queryPayInfo(serialNumber) //search transaction result from server (result upload to server by app)
+				.then(function(resp) {
+					console.log("tx result: " + resp) //resp is a JSON string
+					var respObject = JSON.parse(resp) 
+					if (respObject.code === 0) {
+						// alert(`set ${$("#search_value").val()} succeed!`)
+	                    clearInterval(intervalQuery);
+	                    intervalQuery=null;
+						intervalQuery = null;
+					}
+				}).
+				catch(function(err) {
+					console.log(err);
+				});
+			}
+			function cbPush(resp) {
+				console.log("response of push: " + JSON.stringify(resp))
+			}
+			function updatePrice(){
+				bootbox.prompt({ 
+				  size: "small",
+				  title: "更新售价?", 
+				  callback: function(result){ 
+				  	if (!isNumber(result)) {
+				  		bootbox.alert({ 
+							  size: "small",
+							  title: "Error",
+							  message: "只能是整数或浮点数", 
+							  callback: function(){ /* your callback code */ }
+							})
+				  		return;
+				  	}else{
+				  		var salePrice = result;
+				  		var alias = $("#updatePrice").attr("alias");
+				  		var value = "0";
+						var callFunction = "updatePrice"
+						var callArgs = JSON.stringify([alias,salePrice]);
+						serialNumber = nebPay.call(dappAddress, value, callFunction, callArgs, { //使用nebpay的call接口去调用合约,
+							listener: cbPush //设置listener, 处理交易返回信息
+						});
+
+						intervalQuery = setInterval(function() {
+							funcIntervalQuery();
+						},
+						5000);
+						  	}
+						   }
+						})
+
+			}
+			function getAll(offset,limit) {
+				var from = Account.NewAccount().getAddressString();
+				var value = "0";
+				var nonce = "0"
+				var gas_price = "1000000"
+				var gas_limit = "2000000"
+				var callFunction = "getAllByName";
+				var callArgs = JSON.stringify([offset,limit])
+				var contract = {
+					"function": callFunction,
+					"args": callArgs
+				}
+				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
+					if (resp.result == 'null' ) {
+
+					} else {
+						var respObject = JSON.parse(resp.result);
+						var html = "";
+						for (var i = 0; i < respObject.length; i++) {
+							html += "<tr>";
+							html += "<th scope='row'>" + (i + 1) + "</th>";
+							html += "<th>" + respObject[i].nickname + "</th>";
+							html += "<th>" + respObject[i].address + "</th>";
+							html += "<th>" + respObject[i].salePrice + "</th>";
+							html += "<th>" + respObject[i].saleCount + "</th>";
+							html += "</tr>";
+						}
+						$("#all_list").html(html);
+					}
+				}).
+				catch(function(err) {
+					//cbSearch(err)
+					console.log("error:" + err.message)
+				})
+			}
+			function isNumber(val){
+			    var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+			    var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
+			    if(regPos.test(val) || regNeg.test(val)){
+			        return true;
+			    }else{
+			        return false;
+			    }
+
+			}
+		</script>
+	</body>
+
+</html>
