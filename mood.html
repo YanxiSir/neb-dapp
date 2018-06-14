@@ -12,7 +12,7 @@
 		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css">
 	<!-- 	<link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap-hover-dropdown/2.0.10/bootstrap-hover-dropdown.min.js"> -->
 		<link rel="stylesheet" href="css/screen.min.css" type="text/css" />
-		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<!-- <link rel="stylesheet" type="text/css" href="css/style.css"> -->
 
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <!-- 	    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -60,6 +60,24 @@
             	background-color: #ffffff;
             	border: none;
             }
+            .integral-title{
+				padding-top: 130px;
+				text-align: center;
+			}
+			.integral-title h3{
+				font-weight: 400;
+				color: #3d3d3d;
+				flex-grow:1;
+				width: 70%;
+			    margin: 0 auto;
+			}
+			.title{
+				font-size: 44px;
+			    font-weight: 500;
+			    color: #3d3d3d; 
+			    text-align: center;
+				line-height: 120%;
+			}
             .card {
             	border: 1px solid #EEEEEE;padding: 10px;margin: 15px; margin-bottom: 50px;
             	width: 200px;
@@ -297,7 +315,7 @@
 				}
 				neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then(function(resp) {
 					if (resp.result == 'null' ) {
-
+						console.log(resp)
 					} else {
 						console.log(resp.result);
 						var respObject = JSON.parse(resp.result);
