@@ -10,6 +10,7 @@
 		<link rel="stylesheet" href="lib/bootstrap-3.3.7-dist/css/bootstrap.min.css" type="text/css" />
 		<link rel="stylesheet" href="lib/bootstrap-3.3.7-dist/css/bootstrap.colorpickersliders.min.css" type="text/css"/>
 		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css">
+		<link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap-hover-dropdown/2.0.10/bootstrap-hover-dropdown.min.js">
 		<link rel="stylesheet" href="css/screen.min.css" type="text/css" />
 
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -71,7 +72,7 @@
 							</span>
 							心情写手
 						</h1>
-						<div id="showLogin" hidden="hidden"><span id="nickname">YanxiSir</span></div>
+						<div id="showLogin" hidden="hidden"><span id="nickname"></span></div>
 						<button id="login" class="btn btn-default">登录</button>
 						
 					</div>
@@ -237,6 +238,15 @@
 				})
 				  	
 			});
+
+			$("#nickname").popover({  
+		        html : false,    
+		        title: "钱包地址",    
+		        delay:{show:500, hide:1000},  
+		        content: function() {  
+		          return $.cookie('wallet_address');    
+		        }   
+		    });  
 
 			function getAllMood(){
 				var nickname = $.cookie('nickname');
