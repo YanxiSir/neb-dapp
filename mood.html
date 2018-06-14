@@ -103,7 +103,7 @@
 						</h1>
 						<div id="showLogin" hidden="hidden"><span id="nickname">Test</span></div>
 						<button id="login" class="btn btn-default">登录</button>
-						<div style="color: #6e6e6e;">注册前往&nbsp;<a target='_blank' style="color: #6e6e6e;" href='http://www.dapanger.cn'>WalletAlias</a></div>
+						<div id="regBtn" style="color: #6e6e6e;">注册前往&nbsp;<a target='_blank' style="color: #6e6e6e;" href='http://www.dapanger.cn'>WalletAlias</a></div>
 					</div>
 				</div>
 			</div>
@@ -126,7 +126,7 @@
 					<button id="addBtn" class="glyphicon glyphicon-plus form-inline" style="border: none;"></button>
 					<div id="editMood" hidden="hidden">
 						<div class="form-inline">
-							<textarea id="desc" class="form-control" rows="2" maxlength="50" style="margin-top: 20px"></textarea>
+							<textarea id="desc" class="form-control" rows="2" maxlength="50" style="margin: 20px 0px 0px; width: 250px; height: 64px;"></textarea>
 						</div>
 						<div class="form-inline">
 							<button id="recoreMoodBtn" type="submit" class="btn btn-default" style="margin-top: 20px">记录心情</button>
@@ -202,11 +202,13 @@
 			"use strict";
 
 			// testnet mood contract
-			var dappAddress = "n1s7SWhZPDjgQZAc7xfpf2dV22i7tHLnMz7";
+			// var dappAddress = "n1s7SWhZPDjgQZAc7xfpf2dV22i7tHLnMz7";
+			// mainnet mood contract
+			var dappAddress = "n1x9hoKcUTz8bEdRzyuCK4fa4VCKGioyMuA";
 			var nebulas = require("nebulas"),
 			Account = nebulas.Account,
 			neb = new nebulas.Neb();
-			neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+			neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
 
 			var nebulasAlias = require("nebulas"),
 			AccountAlias = nebulasAlias.Account,
@@ -380,6 +382,7 @@
 
 			function loginSuccess(){
 				$("#login").hide();
+				$("#regBtn").hide();
 				var nickname = $.cookie('nickname');
 				var address = $.cookie('wallet_address');
 				var html = "<span>"+nickname+"</span>&nbsp;&nbsp;:&nbsp;" + address;
