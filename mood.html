@@ -277,14 +277,14 @@
 
 		
 			function getAllMood(){
-				// var nickname = $.cookie('nickname');
-				// var address = $.cookie('wallet_address');
-				// if (nickname==null || address==null) {
-				// 	console.log('没有登录')
-				// 	return
-				// }
+				var nickname = $.cookie('nickname');
+				var address = $.cookie('wallet_address');
+				if (nickname==null || address==null) {
+					console.log('没有登录')
+					return
+				}
 				var from = Account.NewAccount().getAddressString();
-				var address = "n1JE2mf65ryVScatTsnP8M9U5c1VSFmzvaZ";
+				// var address = "n1JE2mf65ryVScatTsnP8M9U5c1VSFmzvaZ";
 				var value = "0";
 				var nonce = "0"
 				var gas_price = "1000000"
