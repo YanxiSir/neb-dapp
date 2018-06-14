@@ -5,17 +5,18 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"
 		/>
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		 <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
+	<!-- 	 <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all"> -->
     <link href="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css" rel="stylesheet" type="text/css" media="all">
 		<link rel="stylesheet" href="lib/bootstrap-3.3.7-dist/css/bootstrap.min.css" type="text/css" />
 		<link rel="stylesheet" href="lib/bootstrap-3.3.7-dist/css/bootstrap.colorpickersliders.min.css" type="text/css"/>
 		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css">
-		<link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap-hover-dropdown/2.0.10/bootstrap-hover-dropdown.min.js">
+	<!-- 	<link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/bootstrap-hover-dropdown/2.0.10/bootstrap-hover-dropdown.min.js"> -->
 		<link rel="stylesheet" href="css/screen.min.css" type="text/css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css">
 
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
-	    <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/run_prettify.min.js"></script>
+<!-- 	    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+ -->	    <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/run_prettify.min.js"></script>
 	    <script src="http://cdnjs.cloudflare.com/ajax/libs/tinycolor/0.11.1/tinycolor.min.js"></script>
 		<script src="lib/nebPay.js"></script>
 		<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
@@ -59,7 +60,17 @@
             	background-color: #ffffff;
             	border: none;
             }
-
+            .card {
+            	border: 1px solid #EEEEEE;padding: 10px;margin: 15px; margin-bottom: 50px;
+            	width: 200px;
+            	float: left;
+            }
+            .card .card-title {
+            	margin-bottom: 10px;
+            }
+            .card .card-body {
+            	padding: 10px;
+            }
         </style>
 	<body>
 		<header class="main-header" id="main-header">
@@ -103,9 +114,36 @@
 							<button id="recoreMoodBtn" type="submit" class="btn btn-default" style="margin-top: 20px">记录心情</button>
 						</div>
 					</div>
-					<div id="moodList"></div>
+				
 				</div>
 			</div>
+		</div>
+		<div id="moodList" class="container">
+			<div class="SectionLandingBelowTheFold">
+            <div class="section-feature">
+              <div class="container">
+                <div class="integral-title">
+                  <h3 class="title">不管开心的，还是...不开心的<br>记住每一天</h3>
+                  <div class="integral-block">
+                    <section class="regular slider slick-initialized slick-slider"><div class="slick-list draggable"><div class="slick-track" style="opacity: 1; width: 1110px; transform: translate3d(0px, 0px, 0px);"><div class="slick-slide slick-current slick-active" data-slick-index="0" aria-hidden="false" style="width: 370px;"><div><div class="col-md-2" style="width: 100%; display: inline-block;">
+                        <div class="col-md-2-img"></div>
+                        <div class="col-md-2-text">
+                        </div>
+                   </div></section>
+                  </div>
+                </div>
+              </div>
+            </div>
+           
+          </div>
+		</div>
+		<div class="container" id="moodArea">
+				 <!--  <div class="card" style="background-color: #0f0f0f">
+				    <div class="card-body">
+				      <h4 class="card-title">Card title</h4>
+				      <p class="card-text">Some example text. Some example text.</p>
+				    </div>
+				  </div> -->
 		</div>
 
 	
@@ -239,13 +277,14 @@
 
 		
 			function getAllMood(){
-				var nickname = $.cookie('nickname');
-				var address = $.cookie('wallet_address');
-				if (nickname==null || address==null) {
-					console.log('没有登录')
-					return
-				}
+				// var nickname = $.cookie('nickname');
+				// var address = $.cookie('wallet_address');
+				// if (nickname==null || address==null) {
+				// 	console.log('没有登录')
+				// 	return
+				// }
 				var from = Account.NewAccount().getAddressString();
+				var address = "n1JE2mf65ryVScatTsnP8M9U5c1VSFmzvaZ";
 				var value = "0";
 				var nonce = "0"
 				var gas_price = "1000000"
@@ -260,8 +299,24 @@
 					if (resp.result == 'null' ) {
 
 					} else {
-						alert(resp.result)
-						// $("#moodList").html(html);
+						console.log(resp.result);
+						var respObject = JSON.parse(resp.result);
+						var html = "";
+						// <div class="card" style="background-color: #0f0f0f">
+						  //   <div class="card-body">
+						  //     <h4 class="card-title">Card title</h4>
+						  //     <p class="card-text">Some example text. Some example text.</p>
+						  //   </div>
+						  // </div>
+						for (var i = 0; i < respObject.length; i++) {
+							html += "<div class='card' style='background-color: "+respObject[i].color+"'>";
+							html += "<div class='card-body'>";
+							html += "<h4 class='card-title'>" + respObject[i].datekey + "</h4>";
+							html += "<p class='card-text'>" + respObject[i].desc + "</p>";
+							html += "</div>";
+							html += "</div>";
+						}
+						$("#moodArea").html(html);
 					}
 				}).
 				catch(function(err) {
