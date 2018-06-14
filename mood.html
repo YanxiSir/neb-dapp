@@ -72,7 +72,7 @@
 							</span>
 							心情写手
 						</h1>
-						<div id="showLogin" hidden="hidden"><a id="nickname"></a></div>
+						<div id="showLogin" hidden="hidden"><span id="nickname">Test</span></div>
 						<button id="login" class="btn btn-default">登录</button>
 						
 					</div>
@@ -164,6 +164,7 @@
 
 			judgeLogin();
 			getAllMood();
+			loginSuccess()
 
 
 
@@ -239,15 +240,7 @@
 				  	
 			});
 
-			$("#nickname").popover({  
-		        html : false,    
-		        title: "钱包地址",    
-		        delay:{show:500, hide:1000},  
-		        content: function() {  
-		          return $.cookie('wallet_address');    
-		        }   
-		    });  
-
+		
 			function getAllMood(){
 				var nickname = $.cookie('nickname');
 				var address = $.cookie('wallet_address');
@@ -316,7 +309,10 @@
 
 			function loginSuccess(){
 				$("#login").hide();
-				$("#nickname").html($.cookie('nickname'))
+				var nickname = $.cookie('nickname');
+				var address = $.cookie('wallet_address');
+				var html = "<span>"+nickname+"</span>&nbsp;&nbsp;:&nbsp;" + address;
+				$("#nickname").html(html)
 				$("#showLogin").show();
 			}
 			function needLogin(){
