@@ -103,7 +103,7 @@
 						</h1>
 						<div id="showLogin" hidden="hidden"><span id="nickname">Test</span></div>
 						<button id="login" class="btn btn-default">登录</button>
-						<div id="regBtn" style="color: #6e6e6e;">注册前往&nbsp;<a target='_blank' style="color: #6e6e6e;" href='http://www.dapanger.cn'>WalletAlias</a></div>
+						<div id="regBtn" style="color: #6e6e6e;">注册前往&nbsp;<a target='_blank' style="color: #6e6e6e;" href='http://193.112.194.235/nasalias.html'>WalletAlias</a></div>
 					</div>
 				</div>
 			</div>
@@ -360,7 +360,7 @@
 				}
 				nebAlias.api.call(from, "n1wctCmdjXYZpRArv6NJkvo1yeLKQQXEgfb", value, nonce, gas_price, gas_limit, contract).then(function(resp) {
 					if (resp.result == 'null') {
-						var html = "<a target='_blank' href='http://www.dapanger.cn'>WalletAlias</a>";
+						var html = "<a target='_blank' href='http://193.112.194.235/nasalias.html'>WalletAlias</a>";
 						bootbox.alert({
 						    message: "用户不存在，请先去"+html+"注册",
 						    className: 'bb-alternate-modal'
