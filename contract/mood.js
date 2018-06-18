@@ -6,10 +6,12 @@ var MoodContent = function(text) {
         this.modifyCount = o.modifyCount;
         this.color = o.color;
         this.desc = o.desc;
+        this.datekey = o.datekey;
     } else {
         this.modifyCount = 0;
         this.color = "rgb(255,255,255)";
         this.desc = "平淡的一天，毫无波澜";
+        this.datekey = "";
     }
 };
 MoodContent.prototype = {
@@ -37,18 +39,20 @@ MoodContract.prototype = {
         var mood = this.moodMap.get(key);
         if(mood==null){
             mood = new MoodContent();
-            // this.moodSize+=1；
+            mood.datekey=datekey;
         }else if(mood.modifyCount>=3){
             throw Error("every day ,you can just modify 3 times");
         }
         mood.color = color;
-        mood.desc = desc;
+        if(desc != ''){
+            mood.desc = desc;
+        }
         mood.modifyCount+=1;
         this.moodMap.put(key,mood);
         // 增加datekey
         var localDatekey = this.datekeyMap.get(datekey);
         if (localDatekey==null) {
-            this.datekeyMap.put(datkey,"-");
+            this.datekeyMap.put(datekey,"-");
             this.datekeyArrayMap.put(this.datekeySize,datekey);
             this.datekeySize+=1;
         }
